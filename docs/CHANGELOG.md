@@ -1,5 +1,122 @@
 # 更新说明
 
+## 版本：v2.1 — 零依赖启动 + 思考模型提速
+
+更新日期：2026-08-19
+
+---
+
+## 一、零依赖启动（PowerShell 替代 Python）
+
+### 背景
+
+v2.0 的 `start.bat` 依赖 `python -m http.server` 启动本地服务器。实际部署中发现：
+
+- 部分机器未安装 Python，双击 `start.bat` 直接闪退
+- bat 脚本含中文，在 GBK 默认的 cmd 下出现乱码（如 `'腑...' 不是内部或外部命令`）
+- 直接双击 `index.html`（`file://` 协议）会触发 CORS，报 `Failed to fetch`
+
+### 改动
+
+| 文件 | 改动 |
+|------|------|
+| `start.ps1`（新增） | 基于 `System.Net.HttpListener` 的 PowerShell 静态 HTTP 服务器，等价于 `python -m http.server` |
+| `start.bat`（重写） | 改为调用 `start.ps1`，**全英文输出**避免 GBK 乱码，零 Python 依赖 |
+
+- 启动器现在只依赖 Windows 自带的 PowerShell，无需安装任何运行时
+- 端口检测、错误兜底、自动开浏览器逻辑保留
+- 通过 `http://localhost:12580` 访问，规避 `file://` 的 CORS 问题
+
+---
+
+## 二、思考模型提速（think 参数）
+
+### 背景
+
+实测 `qwen3.5:2b` 等思考模型：默认会先长篇思考再输出正式内容。100 token 耗时 **11.2 秒**，且 `content` 全空（被思考过程吃光）。而 v2.0 的 `thinkingMode` 开关只控制 `temperature`，**未传 `think` 参数**，导致即使关闭「思考模式」模型照样思考。
+
+### 改动
+
+请求体新增 `think` 字段，由「思考模式」开关控制：
+
+```js
+think: thinkingMode   // 开启 → think:true（先分析再输出，更准但慢）
+                      // 关闭 → think:false（直接输出，跳过思考）
+```
+
+### 实测数据（qwen3.5:2b，100 token）
+
+| 模式 | 耗时 | content |
+|------|------|---------|
+| 默认（思考） | 11197 ms | 空（全被思考占用） |
+| `think:false` | 581 ms | 正常输出 |
+
+**关闭思考模式时提速约 19 倍。**
+
+---
+
+## 三、流式渲染性能优化
+
+### 背景
+
+v2.0 的流式渲染每 80ms 对**整个累积内容**跑一次 `marked.parse()` + `DOMPurify.sanitize()`，复杂度 O(n²)，长文本下明显卡顿。
+
+### 改动
+
+| 阶段 | v2.0 | v2.1 |
+|------|------|------|
+| 流式中 | `innerHTML = DOMPurify.sanitize(marked.parse(snapshot))` | `textContent = snapshot`（纯文本，O(n)） |
+| 完成后 | 同上 | 一次性 `marked.parse` + `DOMPurify.sanitize` |
+| 中断后 | 同上 | 一次性渲染，并清理流式阶段样式 |
+
+流式阶段用 `textContent` 实时显示纯文本（带 `white-space: pre-wrap`），完成后一次性渲染 Markdown，消除全量解析卡顿。
+
+---
+
+## 四、生成长度兜底
+
+请求 `options` 新增 `num_predict: 2048`（约覆盖 3000 中文字），防止模型发散输出导致等待过久，润色场景通常足够。
+
+---
+
+## 五、离线运行确认
+
+对 `index.html` 全量审计外部依赖：
+
+- JS 库：`lib/marked.min.js`、`lib/purify.min.js`（本地）
+- 网络：仅 `fetch` Ollama 的 `/api/tags`、`/api/chat`
+- 无 `@font-face`、无 CDN、无外链图片、无 WebSocket、无 `@import`
+
+**结论：除连接 Ollama 外，断网可完整运行。**
+
+---
+
+## 六、启动脚本健壮性
+
+- `start.bat` 全英文输出，彻底避免 GBK 乱码
+- HTTP 服务器启动失败时显示错误码与可能原因，不再闪退
+- 端口占用检测保留，支持 `start.bat <端口号>` 自定义
+
+---
+
+## 七、文件清单变更
+
+```
+aivoc/
+├── index.html          # 主程序（含 think 参数、textContent 流式、num_predict）
+├── start.bat           # 重写：调用 start.ps1，全英文，零 Python 依赖
+├── start.ps1           # 新增：PowerShell 静态 HTTP 服务器
+├── README.md           # 更新：去 Python 依赖、加目录、GitHub 规范结构
+├── docs/CHANGELOG.md   # 本文件
+├── LICENSE
+├── .gitignore
+└── lib/
+    ├── marked.min.js
+    └── purify.min.js
+```
+
+---
+
 ## 版本：v2.0 — 界面紧凑化 + 全面优化
 
 更新日期：2026-08-17
