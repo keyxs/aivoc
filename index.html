@@ -1033,8 +1033,14 @@
                         messages: messages,
                         stream: true,
                         options: {
-                            temperature: thinkingMode ? 0.7 : 0.3
-                        }
+                            temperature: thinkingMode ? 0.7 : 0.3,
+                            // 限制生成长度，避免模型发散输出导致等待过久
+                            // 2048 token 约覆盖 3000 中文字，润色场景通常足够
+                            num_predict: 2048
+                        },
+                        // 思考模型(qwen3.5/3.8)默认先长篇思考再输出，极慢
+                        // 未开思考模式时显式关闭 think，可提速约 20 倍
+                        think: thinkingMode
                     }),
                     signal: abortSignal
                 });
@@ -1096,10 +1102,13 @@
                                             lastRenderTime = performance.now();
                                             // 仅当还有内容时才渲染
                                             if (snapshot) {
-                                                polishedDiv.innerHTML = DOMPurify.sanitize(marked.parse(snapshot));
-                                                // 用 auto 而非 smooth，避免动画叠加抖动
-                                                polishedDiv.scrollTop = polishedDiv.scrollHeight;
-                                            }
+                                            // 流式阶段用纯文本实时显示，避免每帧全量 Markdown 解析导致卡顿
+                                            // 完成后再做一次性 Markdown 渲染
+                                            polishedDiv.style.whiteSpace = 'pre-wrap';
+                                            polishedDiv.style.wordBreak = 'break-word';
+                                            polishedDiv.textContent = snapshot;
+                                            polishedDiv.scrollTop = polishedDiv.scrollHeight;
+                                        }
                                         });
                                     }
                                 }
@@ -1120,6 +1129,9 @@
                 await new Promise(resolve => requestAnimationFrame(resolve));
 
                 if (fullResponse.trim()) {
+                    // 完成后一次性 Markdown 渲染，并清除流式阶段的纯文本样式
+                    polishedDiv.style.whiteSpace = '';
+                    polishedDiv.style.wordBreak = '';
                     const renderedContent = DOMPurify.sanitize(marked.parse(fullResponse));
                     polishedDiv.innerHTML = renderedContent;
                     polishedDiv.scrollTop = polishedDiv.scrollHeight;
@@ -1160,6 +1172,8 @@
                 if (error.name === 'AbortError') {
                     if (fullResponse.trim()) {
                         currentPolishedText = fullResponse;
+                        polishedDiv.style.whiteSpace = '';
+                        polishedDiv.style.wordBreak = '';
                         polishedDiv.innerHTML = DOMPurify.sanitize(marked.parse(fullResponse));
                         updateStatus('⏹️ 已停止生成，保存了 ' + fullResponse.length + ' 字符的部分结果');
                     } else {
