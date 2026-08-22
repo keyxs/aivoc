@@ -7,25 +7,75 @@
     <script src="lib/marked.min.js"></script>
     <script src="lib/purify.min.js"></script>
     <style>
+        /* ===== 设计令牌：暗色模式只覆写令牌，不重写规则 ===== */
+        :root {
+            --font-body: -apple-system, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Source Han Sans SC", sans-serif;
+            --font-serif: "Songti SC", "STSong", "SimSun", Georgia, serif;
+            --bg: #f4f2ed;
+            --bg-glow-1: rgba(85, 73, 156, 0.08);
+            --bg-glow-2: rgba(185, 58, 38, 0.06);
+            --surface: #ffffff;
+            --surface-2: #f7f5f0;
+            --surface-3: #efece4;
+            --border: #e3dfd5;
+            --border-strong: #cfc9bb;
+            --ink-1: #1f2430;
+            --ink-2: #4b5060;
+            --ink-3: #6f7488;
+            --accent: #b93a26;
+            --accent-hover: #a53120;
+            --on-accent: #ffffff;
+            --accent-soft: rgba(185, 58, 38, 0.10);
+            --violet: #55499c;
+            --violet-soft: rgba(85, 73, 156, 0.10);
+            --success: #0e7a6c;
+            --danger: #c22f4e;
+            --radius: 14px;
+            --radius-sm: 9px;
+            --ease: cubic-bezier(0.22, 1, 0.36, 1);
+            --shadow-card: 0 1px 2px rgba(31, 36, 48, 0.05), 0 8px 24px rgba(31, 36, 48, 0.07);
+            --shadow-lift: 0 2px 6px rgba(31, 36, 48, 0.08), 0 16px 40px rgba(31, 36, 48, 0.14);
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea, #764ba2, #667eea);
-            background-size: 200% 200%;
-            min-height: 100vh;
-            padding: 10px;
-            animation: gradientBG 15s ease infinite;
+        ::selection {
+            background: var(--accent);
+            color: var(--on-accent);
         }
 
-        @keyframes gradientBG {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+        html {
+            color-scheme: light;
+        }
+
+        body {
+            font-family: var(--font-body);
+            color: var(--ink-1);
+            background-color: var(--bg);
+            background-image:
+                radial-gradient(900px 480px at 8% -8%, var(--bg-glow-1), transparent 62%),
+                radial-gradient(800px 420px at 96% 4%, var(--bg-glow-2), transparent 60%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            padding: 20px 12px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+
+        :focus-visible {
+            outline: 2px solid var(--accent);
+            outline-offset: 2px;
+        }
+
+        .textarea:focus-visible, input:focus-visible, select:focus-visible {
+            outline: none;
         }
 
         .container {
@@ -35,110 +85,156 @@
 
         .header {
             text-align: center;
-            color: white;
-            margin-bottom: 8px;
-            animation: fadeInDown 0.8s ease;
+            margin-bottom: 18px;
+            animation: fadeDown 0.7s var(--ease) both;
         }
 
-        @keyframes fadeInDown {
-            from { opacity: 0; transform: translateY(-30px); }
+        @keyframes fadeDown {
+            from { opacity: 0; transform: translateY(-16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(18px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
         .header h1 {
-            font-size: 1.6em;
-            margin-bottom: 2px;
-            text-shadow: 2px 2px 8px rgba(0,0,0,0.3);
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.75em;
+            letter-spacing: 0.04em;
+            color: var(--ink-1);
+            margin-bottom: 4px;
+        }
+
+        .seal {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            font-family: var(--font-serif);
+            font-weight: 700;
+            font-size: 22px;
+            line-height: 1;
+            color: var(--on-accent);
+            background: var(--accent);
+            border-radius: 8px;
+            transform: rotate(-3deg);
+            box-shadow: 0 3px 10px color-mix(in srgb, var(--accent) 35%, transparent), inset 0 0 0 1.5px rgba(255, 255, 255, 0.28);
+            user-select: none;
         }
 
         .header p {
-            font-size: 0.9em;
-            opacity: 0.95;
+            font-size: 0.88em;
+            color: var(--ink-3);
+            letter-spacing: 0.02em;
         }
 
         /* 双列布局 */
         .main-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 10px;
+            gap: 14px;
+            align-items: start;
         }
 
         .card {
-            background: white;
-            border-radius: 10px;
-            padding: 12px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px;
             margin-bottom: 0;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.18);
-            animation: fadeInUp 0.6s ease;
-            transition: box-shadow 0.3s ease;
+            box-shadow: var(--shadow-card);
+            animation: fadeUp 0.65s var(--ease) both;
+            transition: box-shadow 0.35s var(--ease);
         }
 
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        .main-grid > div > .card:nth-child(2) {
+            animation-delay: 0.08s;
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-lift);
         }
 
         .card-title {
-            font-size: 1.05em;
-            color: #2d3748;
-            margin-bottom: 10px;
-            padding-bottom: 6px;
-            border-bottom: 2px solid #e2e8f0;
+            font-size: 0.78em;
+            font-weight: 700;
+            letter-spacing: 0.14em;
+            color: var(--ink-3);
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border);
             display: flex;
             align-items: center;
             gap: 8px;
         }
 
         .card-title .icon {
-            font-size: 1.2em;
+            font-size: 1.25em;
         }
 
         .btn {
-            padding: 7px 16px;
+            padding: 8px 16px;
             border: none;
-            border-radius: 8px;
-            font-size: 0.9em;
+            border-radius: var(--radius-sm);
+            font-size: 0.88em;
+            font-family: inherit;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: transform 0.25s var(--ease), box-shadow 0.25s var(--ease), background 0.25s var(--ease), border-color 0.25s var(--ease);
             display: inline-flex;
             align-items: center;
+            justify-content: center;
             gap: 6px;
         }
 
         .btn:hover:not(:disabled) {
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            box-shadow: var(--shadow-lift);
         }
 
         .btn:disabled {
-            opacity: 0.5;
+            opacity: 0.45;
             cursor: not-allowed;
             transform: none;
         }
 
         .btn:active:not(:disabled) {
-            transform: translateY(-1px);
+            transform: translateY(0);
+            transition-duration: 0.05s;
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background: var(--accent);
+            color: var(--on-accent);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: var(--accent-hover);
         }
 
         .btn-secondary {
-            background: #e2e8f0;
-            color: #2d3748;
+            background: var(--surface-2);
+            border: 1px solid var(--border-strong);
+            color: var(--ink-1);
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            border-color: var(--ink-3);
         }
 
         .btn-success {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-            color: white;
+            background: var(--success);
+            color: var(--on-accent);
         }
 
         .btn-danger {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            color: white;
+            background: var(--danger);
+            color: #fff;
         }
 
         .btn-group {
@@ -149,116 +245,293 @@
             align-items: center;
         }
 
-        .textarea, input[type="text"], select {
+        .textarea, input[type="text"], input[type="password"], select {
             width: 100%;
-            padding: 10px;
-            border: 2px solid #e2e8f0;
-            border-radius: 8px;
+            padding: 9px 12px;
+            border: 1.5px solid var(--border-strong);
+            border-radius: var(--radius-sm);
             font-size: 0.9em;
             font-family: inherit;
-            transition: all 0.3s ease;
-            background: #f7fafc;
+            color: var(--ink-1);
+            transition: border-color 0.25s var(--ease), box-shadow 0.25s var(--ease), background 0.25s var(--ease);
+            background: var(--surface-2);
         }
 
-        .textarea:focus, input[type="text"]:focus, select:focus {
+        .textarea:focus, input[type="text"]:focus, input[type="password"]:focus, select:focus {
             outline: none;
-            border-color: #667eea;
-            background: white;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.12);
+            border-color: var(--accent);
+            background: var(--surface);
+            box-shadow: 0 0 0 3px var(--accent-soft);
+        }
+
+        .textarea::placeholder, input::placeholder {
+            color: var(--ink-3);
+            opacity: 0.85;
         }
 
         .textarea {
-            min-height: 70px;
-            max-height: 250px;
+            min-height: 90px;
+            max-height: 280px;
             resize: vertical;
-            line-height: 1.5;
+            line-height: 1.6;
+            padding: 12px 14px;
         }
 
         .style-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-            gap: 6px;
+            grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
+            gap: 8px;
             margin-bottom: 0;
         }
 
         .style-btn {
-            background: #f7fafc;
-            border: 2px solid #e2e8f0;
-            border-radius: 8px;
-            padding: 8px 6px;
+            background: var(--surface-2);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 10px 8px;
             text-align: center;
             cursor: pointer;
-            transition: all 0.3s ease;
+            user-select: none;
+            transition: transform 0.28s var(--ease), box-shadow 0.28s var(--ease), border-color 0.28s var(--ease), background 0.28s var(--ease);
         }
 
         .style-btn:hover {
-            background: #edf2f7;
-            border-color: #667eea;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+            background: var(--surface);
+            border-color: var(--accent);
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lift);
+        }
+
+        .style-btn:hover .title {
+            color: var(--accent);
         }
 
         .style-btn.active {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border-color: #667eea;
+            background: var(--accent);
+            border-color: var(--accent);
+            color: var(--on-accent);
+            box-shadow: 0 6px 18px color-mix(in srgb, var(--accent) 32%, transparent);
+        }
+
+        .style-btn.active .title,
+        .style-btn.active .desc {
+            color: inherit;
         }
 
         .style-btn .title {
             font-weight: 700;
             margin-bottom: 2px;
-            font-size: 0.85em;
+            font-size: 0.86em;
+            transition: color 0.28s var(--ease);
         }
 
         .style-btn .desc {
             font-size: 0.72em;
-            opacity: 0.75;
+            color: var(--ink-3);
+        }
+
+        /* 对比模式开关 */
+        .multi-switch {
+            margin-left: auto;
+            font-size: 0.72em;
+            letter-spacing: 0.04em;
+            color: var(--ink-3);
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .multi-switch input {
+            accent-color: var(--accent);
+            cursor: pointer;
+        }
+
+        /* ➕ 自定义卡片（虚线弱化） */
+        .style-btn-add {
+            border-style: dashed;
+            opacity: 0.78;
+        }
+
+        /* 对比模式多选高亮 */
+        .style-btn.pick {
+            border-color: var(--accent);
+            background: color-mix(in srgb, var(--accent) 12%, var(--surface-2));
+        }
+
+        /* 对比操作条与通用隐藏 */
+        .compare-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 8px;
+            font-size: 0.78em;
+            color: var(--ink-3);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* 原文/润色对照视图 */
+        .compare-view {
+            display: flex;
+            gap: 12px;
+            align-items: stretch;
+        }
+
+        .cmp-col {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .cmp-col h5 {
+            margin: 0 0 6px;
+            font-size: 0.78em;
+            letter-spacing: 0.08em;
+            color: var(--ink-3);
+        }
+
+        .cmp-orig {
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        @media (max-width: 900px) {
+            .compare-view {
+                flex-direction: column;
+            }
+        }
+
+        /* 自定义风格管理弹窗 */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 17, 24, 0.45);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .modal-box {
+            background: var(--surface);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-lift);
+            width: 480px;
+            max-width: 100%;
+            max-height: 85vh;
+            overflow-y: auto;
+            padding: 16px;
+        }
+
+        .modal-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .cs-form {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .cs-input,
+        .cs-textarea {
+            padding: 8px 10px;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-sm);
+            background: var(--surface-2);
+            color: var(--ink-1);
+            font-size: 0.85em;
+            font-family: inherit;
+        }
+
+        .cs-textarea {
+            min-height: 90px;
+            resize: vertical;
+        }
+
+        .cs-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 10px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            margin-bottom: 6px;
+            font-size: 0.85em;
+        }
+
+        .cs-item .cs-name {
+            font-weight: 700;
+            flex: 1;
+        }
+
+        .cs-item .cs-del {
+            cursor: pointer;
+            color: var(--danger);
         }
 
         .result-box {
-            background: #f7fafc;
-            padding: 8px;
-            border-radius: 8px;
-            border: 2px solid #e2e8f0;
-            min-height: 36px;
-            line-height: 1.5;
-            font-size: 0.85em;
-            transition: all 0.3s ease;
-            max-height: 200px;
+            background: var(--surface-2);
+            padding: 10px 12px 10px 16px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--border-strong);
+            min-height: 38px;
+            line-height: 1.6;
+            font-size: 0.87em;
+            color: var(--ink-2);
+            transition: border-color 0.3s var(--ease), background 0.3s var(--ease);
+            max-height: 220px;
             overflow-y: auto;
         }
 
-        .result-box:hover {
-            border-color: #cbd5e0;
-        }
-
-        /* 结果区域三列布局 */
+        /* 结果区域：以左边条区分三段 */
         .result-section {
-            margin-bottom: 6px;
+            margin-bottom: 10px;
         }
 
         .result-section h4 {
-            margin-bottom: 2px;
-            color: #4a5568;
-            font-size: 0.8em;
+            margin-bottom: 4px;
+            color: var(--ink-3);
+            font-size: 0.78em;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+        }
+
+        #cleanedResult {
+            border-left-color: var(--violet);
+        }
+
+        #polishedResult {
+            background: var(--surface);
+            border-left-color: var(--accent);
+            color: var(--ink-1);
         }
 
         /* Markdown 样式 */
         .markdown-content h1, .markdown-content h2, .markdown-content h3 {
-            color: #2d3748;
-            margin: 10px 0 6px 0;
+            color: var(--ink-1);
+            margin: 12px 0 6px 0;
             font-weight: 700;
         }
 
         .markdown-content h1 {
-            font-size: 1.4em;
-            border-bottom: 2px solid #e2e8f0;
+            font-size: 1.35em;
+            border-bottom: 2px solid var(--border);
             padding-bottom: 4px;
         }
 
         .markdown-content h2 {
-            font-size: 1.2em;
-            border-bottom: 2px solid #e2e8f0;
+            font-size: 1.18em;
+            border-bottom: 1px solid var(--border);
             padding-bottom: 3px;
         }
 
@@ -281,19 +554,19 @@
         }
 
         .markdown-content code {
-            background: #edf2f7;
+            background: var(--surface-3);
             padding: 2px 6px;
             border-radius: 4px;
             font-family: 'Consolas', 'Monaco', monospace;
-            font-size: 0.85em;
-            color: #e53e3e;
+            font-size: 0.88em;
+            color: var(--accent);
         }
 
         .markdown-content pre {
-            background: #1a202c;
-            color: #f7fafc;
-            padding: 12px;
-            border-radius: 8px;
+            background: #23252e;
+            color: #e8e6df;
+            padding: 12px 14px;
+            border-radius: var(--radius-sm);
             overflow-x: auto;
             margin: 10px 0;
         }
@@ -305,18 +578,18 @@
         }
 
         .markdown-content blockquote {
-            border-left: 4px solid #667eea;
+            border-left: 3px solid var(--violet);
             margin: 10px 0;
-            color: #4a5568;
+            color: var(--ink-2);
             font-style: italic;
-            background: #edf2f7;
-            padding: 6px 12px;
+            background: var(--surface-3);
+            padding: 8px 12px;
             border-radius: 4px;
         }
 
         .markdown-content strong {
             font-weight: 700;
-            color: #2d3748;
+            color: var(--ink-1);
         }
 
         .markdown-content em {
@@ -324,13 +597,32 @@
         }
 
         .markdown-content a {
-            color: #667eea;
+            color: var(--accent);
             text-decoration: none;
             border-bottom: 1px solid transparent;
+            transition: border-color 0.2s var(--ease);
         }
 
         .markdown-content a:hover {
-            border-bottom-color: #667eea;
+            border-bottom-color: var(--accent);
+        }
+
+        .markdown-content table {
+            border-collapse: collapse;
+            margin: 10px 0;
+            width: 100%;
+            font-size: 0.95em;
+        }
+
+        .markdown-content th, .markdown-content td {
+            border: 1px solid var(--border);
+            padding: 5px 10px;
+            text-align: left;
+        }
+
+        .markdown-content th {
+            background: var(--surface-3);
+            font-weight: 700;
         }
 
         /* 开关 */
@@ -338,9 +630,10 @@
             display: flex;
             align-items: center;
             gap: 6px;
-            background: #f7fafc;
-            padding: 4px 8px;
-            border-radius: 6px;
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            padding: 4px 10px;
+            border-radius: 999px;
             font-size: 0.85em;
         }
 
@@ -364,8 +657,8 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background-color: #cbd5e0;
-            transition: 0.4s;
+            background-color: var(--border-strong);
+            transition: background-color 0.3s var(--ease);
             border-radius: 22px;
         }
 
@@ -376,32 +669,33 @@
             width: 16px;
             left: 3px;
             bottom: 3px;
-            background-color: white;
-            transition: 0.4s;
+            background-color: #fff;
+            transition: transform 0.3s var(--ease);
             border-radius: 50%;
             box-shadow: 0 1px 3px rgba(0,0,0,0.2);
         }
 
         input:checked + .slider {
-            background-color: #667eea;
+            background-color: var(--accent);
         }
 
         input:checked + .slider:before {
             transform: translateX(18px);
         }
 
-        /* 状态条 */
+        /* 状态条：双主题统一深墨胶囊 */
         .status-bar {
-            background: rgba(255, 255, 255, 0.95);
-            padding: 6px 16px;
-            border-radius: 20px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+            background: rgba(30, 33, 46, 0.92);
+            color: #eceef4;
+            padding: 7px 16px;
+            border-radius: 999px;
+            box-shadow: var(--shadow-card);
             font-size: 0.85em;
-            transition: all 0.3s ease;
+            transition: opacity 0.3s var(--ease), transform 0.3s var(--ease);
             display: flex;
             align-items: center;
             gap: 8px;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
             backdrop-filter: blur(10px);
         }
 
@@ -409,7 +703,8 @@
             width: 8px;
             height: 8px;
             border-radius: 50%;
-            background: #48bb78;
+            background: #3ecf9a;
+            box-shadow: 0 0 0 3px rgba(62, 207, 154, 0.18);
             animation: pulse 2s infinite;
         }
 
@@ -421,15 +716,16 @@
         /* Toast */
         .toast {
             position: fixed;
-            top: 16px;
-            right: 16px;
-            background: rgba(45, 55, 72, 0.95);
-            color: white;
+            top: 18px;
+            right: 18px;
+            background: rgba(30, 33, 46, 0.96);
+            color: #f0f1f5;
             padding: 10px 18px;
-            border-radius: 8px;
+            border-radius: var(--radius-sm);
+            border: 1px solid rgba(255,255,255,0.08);
             z-index: 1000;
-            animation: slideInRight 0.4s ease-out;
-            box-shadow: 0 6px 18px rgba(0,0,0,0.3);
+            animation: slideInRight 0.4s var(--ease);
+            box-shadow: var(--shadow-lift);
             font-size: 0.9em;
         }
 
@@ -443,8 +739,8 @@
             display: inline-block;
             width: 16px;
             height: 16px;
-            border: 2px solid #e2e8f0;
-            border-top-color: #667eea;
+            border: 2px solid var(--border-strong);
+            border-top-color: var(--accent);
             border-radius: 50%;
             animation: spin 1s linear infinite;
             margin-left: 6px;
@@ -456,7 +752,7 @@
         }
 
         .loading-text {
-            color: #667eea;
+            color: var(--accent);
             font-weight: 600;
         }
 
@@ -465,11 +761,11 @@
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            color: #805ad5;
+            color: var(--violet);
             font-weight: 600;
-            background: #f3e8ff;
-            padding: 4px 10px;
-            border-radius: 6px;
+            background: var(--violet-soft);
+            padding: 4px 12px;
+            border-radius: 999px;
             margin-bottom: 8px;
             font-size: 0.85em;
         }
@@ -483,7 +779,7 @@
             width: 6px;
             height: 6px;
             border-radius: 50%;
-            background: #805ad5;
+            background: var(--violet);
             animation: thinkingBounce 1.4s infinite ease-in-out;
         }
 
@@ -499,21 +795,155 @@
         .tips-box {
             margin-top: 6px;
             font-size: 0.78em;
-            color: #4a5568;
-            background: #f7fafc;
-            padding: 6px 10px;
-            border-radius: 6px;
-            line-height: 1.5;
+            color: var(--ink-2);
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            padding: 8px 12px;
+            border-radius: var(--radius-sm);
+            line-height: 1.7;
+        }
+
+        .tips-box code {
+            background: var(--surface-3);
+            padding: 1px 5px;
+            border-radius: 4px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.95em;
+            color: var(--accent);
+        }
+
+        /* 历史面板 */
+        #historyPanel summary {
+            cursor: pointer;
+            font-size: 0.8em;
+            color: var(--ink-3);
+            user-select: none;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            list-style: none;
+            transition: color 0.2s var(--ease);
+        }
+
+        #historyPanel summary::-webkit-details-marker {
+            display: none;
+        }
+
+        #historyPanel summary::before {
+            content: "▸";
+            font-size: 0.9em;
+            transition: transform 0.25s var(--ease);
+        }
+
+        #historyPanel[open] summary::before {
+            transform: rotate(90deg);
+        }
+
+        #historyPanel summary:hover {
+            color: var(--accent);
+        }
+
+        /* 润色历史 */
+        .history-list {
+            max-height: 160px;
+            overflow-y: auto;
+            margin-top: 6px;
+        }
+
+        .history-item {
+            cursor: pointer;
+            padding: 6px 8px;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.8em;
+            color: var(--ink-2);
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            transition: background 0.2s var(--ease), color 0.2s var(--ease);
+            border-radius: 4px;
+        }
+
+        .history-item:hover {
+            background: var(--surface-3);
+            color: var(--ink-1);
+        }
+
+        .history-item .h-style {
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .history-item .h-time {
+            opacity: 0.7;
+            white-space: nowrap;
+        }
+
+        /* 字数统计 */
+        .char-count {
+            font-size: 0.75em;
+            color: var(--ink-3);
+            text-align: right;
+            margin-top: 4px;
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* ===== 暗色模式（跟随系统，仅覆写令牌） ===== */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                color-scheme: dark;
+                --bg: #12131b;
+                --bg-glow-1: rgba(120, 106, 210, 0.10);
+                --bg-glow-2: rgba(224, 91, 65, 0.08);
+                --surface: #1b1e2b;
+                --surface-2: #222634;
+                --surface-3: #2b3042;
+                --border: #333950;
+                --border-strong: #454c66;
+                --ink-1: #eceef4;
+                --ink-2: #b6bccd;
+                --ink-3: #8b92a8;
+                --accent: #e05b41;
+                --accent-hover: #ea6c53;
+                --on-accent: #20141a;
+                --accent-soft: rgba(224, 91, 65, 0.16);
+                --violet: #a99ce0;
+                --violet-soft: rgba(169, 156, 224, 0.13);
+                --success: #34b39f;
+                --danger: #e56a83;
+                --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.35);
+                --shadow-lift: 0 2px 6px rgba(0, 0, 0, 0.45), 0 16px 40px rgba(0, 0, 0, 0.5);
+            }
+
+            .markdown-content pre {
+                background: #101218;
+            }
+
+            select option {
+                background: #222634;
+                color: var(--ink-1);
+            }
         }
 
         /* 响应式 */
         @media (max-width: 768px) {
+            body {
+                padding: 12px 8px;
+            }
+
             .main-grid {
                 grid-template-columns: 1fr;
             }
 
             .header h1 {
-                font-size: 1.4em;
+                font-size: 1.35em;
+                gap: 9px;
+            }
+
+            .seal {
+                width: 32px;
+                height: 32px;
+                font-size: 17px;
+                border-radius: 7px;
             }
 
             .style-grid {
@@ -529,13 +959,22 @@
                 justify-content: center;
             }
         }
+
+        /* 动效偏好：减少 */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>📝 智能文本润色系统</h1>
-            <p>文本输入 → 智能清洗 → 风格润色 | 支持本地大模型 API 调用</p>
+            <h1><span class="seal">润</span>智能文本润色系统</h1>
+            <p>文本输入 → 智能清洗 → 风格润色 · 本地 Ollama 与在线 API 双通道</p>
         </div>
 
         <!-- 状态条 -->
@@ -555,22 +994,36 @@
                         模型配置
                     </div>
                     <div class="btn-group">
-                        <input type="text" id="apiUrl" placeholder="API 地址" style="width: 220px;" value="http://localhost:11434">
-                        <select id="modelName" style="width: 150px;">
-                            <option value="">检测模型...</option>
+                        <select id="serviceType" style="width: 140px;" title="选择模型服务类型">
+                            <option value="ollama">🏠 本地 Ollama</option>
+                            <option value="openai">☁️ 在线 API</option>
                         </select>
+                        <input type="text" id="apiUrl" placeholder="API 地址" style="width: 190px;" value="http://localhost:11434">
+                        <input type="text" id="modelName" list="modelList" placeholder="选择或输入模型名" style="width: 170px;">
+                        <datalist id="modelList"></datalist>
                         <button class="btn btn-primary" id="testApiBtn">🔍 测试</button>
                         <button class="btn btn-secondary" id="refreshModelsBtn">🔄 刷新</button>
                     </div>
+                    <div class="btn-group" id="onlineGroup" style="display: none; margin-bottom: 6px;">
+                        <select id="providerPreset" style="width: 130px;" title="在线服务商预设">
+                            <option value="">预设服务商...</option>
+                            <option value="deepseek">DeepSeek</option>
+                            <option value="qwen">通义千问</option>
+                            <option value="kimi">Kimi</option>
+                            <option value="openai">OpenAI</option>
+                            <option value="custom">自定义</option>
+                        </select>
+                        <input type="password" id="apiKey" placeholder="API Key（仅存本地浏览器）" style="width: 220px;" autocomplete="off">
+                    </div>
                     <div class="btn-group" style="margin-bottom: 6px;">
                         <div class="switch-container">
-                            <label style="font-weight: 600;">启用 Ollama</label>
+                            <label style="font-weight: 600;">调用模型</label>
                             <label class="switch">
                                 <input type="checkbox" id="useOllama" checked>
                                 <span class="slider"></span>
                             </label>
                         </div>
-                        <div class="switch-container">
+                        <div class="switch-container" id="thinkingSwitchContainer" title="仅本地 Ollama 支持思考模式">
                             <label style="font-weight: 600;">🧠 思考</label>
                             <label class="switch">
                                 <input type="checkbox" id="thinkingMode">
@@ -579,7 +1032,8 @@
                         </div>
                     </div>
                     <div class="tips-box">
-                        默认地址 <code style="background: #edf2f7; padding: 1px 4px; border-radius: 3px;">http://localhost:11434</code> · 先 <code style="background: #edf2f7; padding: 1px 4px; border-radius: 3px;">ollama pull llama3</code> 拉取模型 · 思考模式更准但较慢
+                        默认地址 <code>http://localhost:11434</code> · 先 <code>ollama pull llama3</code> 拉取模型 · 思考模式更准但较慢<br>
+                        在线模式需填写 API Key，<strong>文本将发送至对应服务商</strong> · 局域网访问 Ollama 需在其所在机器设置环境变量 <code>OLLAMA_ORIGINS=*</code> 后重启
                     </div>
                 </div>
 
@@ -590,6 +1044,7 @@
                         文本输入
                     </div>
                     <textarea id="inputText" class="textarea" placeholder="请输入或粘贴需要润色的文本...&#10;Enter 发送 · Shift+Enter 换行"></textarea>
+                    <div id="charCount" class="char-count">0 字</div>
                     <div style="margin-top: 8px; display: flex; gap: 8px;">
                         <button class="btn btn-primary" id="submitBtn" style="flex: 1;">📤 提交并清洗</button>
                         <button class="btn btn-secondary" id="clearBtn">🗑️ 清空</button>
@@ -604,6 +1059,9 @@
                     <div class="card-title">
                         <span class="icon">✨</span>
                         一键润色
+                        <label class="multi-switch" title="开启后可点选多个风格横向对比">
+                            <input type="checkbox" id="multiMode"> 对比模式
+                        </label>
                     </div>
                     <div class="style-grid">
                         <div class="style-btn" data-style="concise">
@@ -638,6 +1096,14 @@
                             <div class="title">📖 提升可读性</div>
                             <div class="desc">拆分长句，增强层次</div>
                         </div>
+                        <div class="style-btn style-btn-add" id="addStyleBtn" title="新建自定义风格">
+                            <div class="title">➕ 自定义</div>
+                            <div class="desc">创建专属风格</div>
+                        </div>
+                    </div>
+                    <div id="compareBar" class="compare-bar hidden">
+                        <button class="btn btn-success" id="runCompareBtn">⚡ 开始对比</button>
+                        <span id="compareHint">已选 0 个风格</span>
                     </div>
                 </div>
 
@@ -658,22 +1124,51 @@
                         <div id="cleanedResult" class="result-box">等待处理...</div>
                     </div>
 
-                    <div>
-                        <h4 style="margin-bottom: 4px; color: #4a5568; font-size: 0.85em;">✨ 润色结果</h4>
+                    <div class="result-section">
+                        <h4>✨ 润色结果</h4>
                         <div id="polishedResult" class="result-box markdown-content">等待润色...</div>
                         <div style="margin-top: 6px; display: flex; gap: 8px;">
                             <button class="btn btn-success" id="copyBtn">📋 复制结果</button>
+                            <button class="btn btn-secondary" id="exportBtn">💾 导出 .md</button>
+                            <button class="btn btn-secondary" id="compareViewBtn" title="开启后润色结果与原文左右分栏对照">🔀 原文对照</button>
                             <button class="btn btn-danger" id="stopBtn" style="display: none;">⏹️ 停止生成</button>
                         </div>
+                        <details id="historyPanel" style="margin-top: 8px;">
+                            <summary>🕘 润色历史（最近 10 条，点击条目回看）</summary>
+                            <div id="historyList" class="history-list"></div>
+                        </details>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- 自定义风格管理弹窗 -->
+    <div id="modalOverlay" class="modal-overlay hidden">
+        <div class="modal-box">
+            <div class="modal-head">
+                <strong>🎨 自定义风格</strong>
+                <button class="btn btn-secondary" id="csCloseBtn">✕</button>
+            </div>
+            <div class="cs-form">
+                <input id="csName" class="cs-input" placeholder="风格名称（必填，如：小红书文案）" maxlength="12">
+                <input id="csIcon" class="cs-input" placeholder="图标 emoji（可选，默认 ✨）" maxlength="4">
+                <textarea id="csPrompt" class="cs-textarea" placeholder="系统提示词（必填）：描述该风格的润色要求，如「你是一位小红书爆款文案写手，擅长…」"></textarea>
+                <button class="btn btn-success" id="csSaveBtn">💾 保存风格</button>
+            </div>
+            <div id="csList"></div>
+        </div>
+    </div>
+
     <script>
         // 口语填充词
-        const fillerWords = ['呃', '那个', '然后', '就是说', '对吧', '嗯', '啊', '哦', '然后呢', '这个', '就是'];
+        // 语气词：可全局删除（不会构成正常词汇）
+        const interjectionWords = ['呃', '嗯', '啊', '哦'];
+
+        // 口语填充词：仅在句首/标点或空白之后才删除
+        // 误伤防护：前面是文字时不删（如"他就是老板"、"和这个相关"）
+        // 顺序重要：长词在前，避免"然后呢"先被删成"呢"
+        const phraseFillers = ['然后呢', '就是说', '那个', '然后', '对吧', '这个', '就是'];
 
         // 正式用语替换
         const formalReplacements = {
@@ -694,6 +1189,9 @@
 
         // 对话历史（上下文管理）
         let chatHistory = [];
+        let currentStyleId = null;   // 当前选中的风格 id（切换时清空上下文用）
+        let compareView = false;     // 对照视图开关
+        let lastCleanedText = '';    // 最近一次清洗后文本（对照视图左栏内容）
 
         // 保存当前润色的完整原始响应（供复制使用，避免取渲染后 DOM 文本丢失格式）
         let currentPolishedText = '';
@@ -703,11 +1201,27 @@
 
         // 配置持久化键
         const STORAGE_KEY = 'aivoc_config';
+        const HISTORY_KEY = 'aivoc_history';
+
+        // 在线服务商预设（OpenAI 兼容接口）
+        const ONLINE_PRESETS = {
+            'deepseek': { name: 'DeepSeek', url: 'https://api.deepseek.com/v1', models: ['deepseek-chat', 'deepseek-reasoner'] },
+            'qwen': { name: '通义千问', url: 'https://dashscope.aliyuncs.com/compatible-mode/v1', models: ['qwen-plus', 'qwen-max', 'qwen-turbo'] },
+            'kimi': { name: 'Kimi', url: 'https://api.moonshot.cn/v1', models: ['moonshot-v1-8k', 'moonshot-v1-32k', 'moonshot-v1-128k'] },
+            'openai': { name: 'OpenAI', url: 'https://api.openai.com/v1', models: ['gpt-4o-mini', 'gpt-4o'] }
+        };
+
+        // 当前是否为在线模式
+        function isOnline() {
+            return document.getElementById('serviceType').value === 'openai';
+        }
 
         // 保存配置到 localStorage
         function saveConfig() {
             const config = {
+                serviceType: document.getElementById('serviceType').value,
                 apiUrl: document.getElementById('apiUrl').value,
+                apiKey: document.getElementById('apiKey').value,
                 modelName: document.getElementById('modelName').value,
                 useOllama: document.getElementById('useOllama').checked,
                 thinkingMode: document.getElementById('thinkingMode').checked
@@ -726,13 +1240,45 @@
                 if (!saved) return;
                 const config = JSON.parse(saved);
 
+                if (config.serviceType) document.getElementById('serviceType').value = config.serviceType;
                 if (config.apiUrl) document.getElementById('apiUrl').value = config.apiUrl;
-                // modelName 在 loadModels 完成后从 localStorage 读取并选中
+                if (config.apiKey) document.getElementById('apiKey').value = config.apiKey;
+                // modelName 为自由输入，直接恢复（模型列表加载后仍保留手输值）
+                if (config.modelName) document.getElementById('modelName').value = config.modelName;
                 if (config.useOllama !== undefined) document.getElementById('useOllama').checked = config.useOllama;
                 if (config.thinkingMode !== undefined) document.getElementById('thinkingMode').checked = config.thinkingMode;
+
+                applyServiceTypeUI(false);
             } catch (e) {
                 console.warn('恢复配置失败:', e);
             }
+        }
+
+        // 服务类型切换：显隐在线配置区、禁用思考开关、切换默认地址与模型建议
+        function applyServiceTypeUI(notify = true) {
+            const online = isOnline();
+            const serviceChanged = notify === true;
+
+            document.getElementById('onlineGroup').style.display = online ? 'flex' : 'none';
+
+            const thinkingContainer = document.getElementById('thinkingSwitchContainer');
+            thinkingContainer.style.opacity = online ? '0.4' : '1';
+            thinkingContainer.style.pointerEvents = online ? 'none' : 'auto';
+
+            const apiUrlEl = document.getElementById('apiUrl');
+            if (online) {
+                // 从本地切到在线且仍是本地地址时，自动填入默认预设地址
+                if (/localhost|127\.0\.0\.1|^$/.test(apiUrlEl.value.trim())) {
+                    apiUrlEl.value = ONLINE_PRESETS.deepseek.url;
+                    document.getElementById('providerPreset').value = 'deepseek';
+                }
+                fillModelSuggestions(ONLINE_PRESETS.deepseek.models);
+                if (serviceChanged) showToast('⚠ 在线模式：文本将发送至外部服务器', 4000);
+            } else if (serviceChanged) {
+                loadModels();
+            }
+
+            saveConfig();
         }
 
         // 获取风格的中文名称
@@ -747,6 +1293,8 @@
                 'consistent': '统一风格',
                 'readable': '提升可读性'
             };
+            const cs = getCustomStyle(style);
+            if (cs) { return cs.name; }
             return styleNames[style] || '润色';
         }
 
@@ -821,6 +1369,66 @@
 7. 输出时使用 Markdown 格式，充分利用标题、列表、分段等增强可读性。`
         };
 
+        // 自定义风格：存于 localStorage，id 以 cs_ 前缀与内置风格区分
+        const CS_KEY = 'customStyles';
+        let customStyles = [];
+        try { customStyles = JSON.parse(localStorage.getItem(CS_KEY) || '[]'); } catch (e) { customStyles = []; }
+        function saveCustomStyles() { localStorage.setItem(CS_KEY, JSON.stringify(customStyles)); }
+        function getCustomStyle(style) { return customStyles.find(c => c.id === style); }
+
+        // 统一取系统提示词：自定义风格优先，其次内置库，最后兜底
+        function getSystemPrompt(style) {
+            const cs = getCustomStyle(style);
+            if (cs) return cs.prompt;
+            return systemPrompts[style] || '你是一位专业的文本润色专家，请优化用户提供的文本。';
+        }
+
+        // 各风格生成参数：摘要/公文求稳用低温度，润色/说服力求活用中温度；maxGen 限制生成长度上限
+        const styleParams = {
+            'concise':   { temperature: 0.2, maxGen: 1024 },
+            'formal':    { temperature: 0.3, maxGen: 2048 },
+            'logical':   { temperature: 0.3, maxGen: 2048 },
+            'smooth':    { temperature: 0.5, maxGen: 2048 },
+            'spoken-to-written': { temperature: 0.3, maxGen: 2048 },
+            'persuasive':{ temperature: 0.5, maxGen: 2048 },
+            'consistent':{ temperature: 0.3, maxGen: 2048 },
+            'readable':  { temperature: 0.4, maxGen: 2048 }
+        };
+        function getStyleParams(style) { return styleParams[style] || { temperature: 0.3, maxGen: 2048 }; }
+
+        // 按原文特征追加指令：摘要给量化字数目标；短文本免用 Markdown 结构
+        function buildPromptSuffix(style, text) {
+            let extra = '';
+            if (style === 'concise') {
+                const target = Math.max(30, Math.round(text.length * 0.35));
+                extra += `\n\n原文约${text.length}字，请将摘要控制在约${target}字以内。`;
+            }
+            if (text.length < 100) {
+                extra += '\n\n特别要求：原文较短，直接输出润色后的纯文本即可，不要使用标题、列表等 Markdown 格式。';
+            }
+            return extra;
+        }
+
+        // HTML 转义
+        function escapeHtml(s) {
+            return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        }
+
+        // 润色结果终态渲染：对照视图开时左右分栏（左原文右润色）
+        function renderPolishOutput(div, rawMd) {
+            div.style.whiteSpace = '';
+            div.style.wordBreak = '';
+            const rendered = DOMPurify.sanitize(marked.parse(rawMd));
+            if (compareView && lastCleanedText && div.id === 'polishedResult') {
+                div.innerHTML = '<div class="compare-view">' +
+            '<div class="cmp-col"><h5>原文（清洗后）</h5><div class="cmp-orig">' + escapeHtml(lastCleanedText) + '</div></div>' +
+            '<div class="cmp-col"><h5>润色结果</h5>' + rendered + '</div></div>';
+            } else {
+                div.innerHTML = rendered;
+            }
+            div.scrollTop = div.scrollHeight;
+        }
+
         // Toast 提示
         function showToast(message, duration = 3000) {
             const existingToast = document.querySelector('.toast');
@@ -842,6 +1450,7 @@
         textarea.addEventListener('input', function() {
             this.style.height = 'auto';
             this.style.height = Math.min(this.scrollHeight, 500) + 'px';
+            document.getElementById('charCount').textContent = this.value.length + ' 字';
         });
 
         // 输入框键盘事件（Enter 发送，Shift+Enter 换行）
@@ -887,9 +1496,35 @@
             }
         }
 
+        // 字节数格式化（模型大小展示用）
+        function formatSize(bytes) {
+            if (!bytes || bytes <= 0) return '?';
+            if (bytes >= 1024 * 1024 * 1024) return (bytes / 1024 / 1024 / 1024).toFixed(1) + 'GB';
+            return Math.round(bytes / 1024 / 1024) + 'MB';
+        }
+
+        // 填充模型建议列表（datalist；传入空数组则清空）
+        function fillModelSuggestions(names) {
+            const datalist = document.getElementById('modelList');
+            datalist.innerHTML = '';
+            if (names && names.length) {
+                names.forEach(n => {
+                    const o = document.createElement('option');
+                    o.value = n;
+                    datalist.appendChild(o);
+                });
+            }
+        }
+
+        // 获取局域网访问提示（Ollama CORS）
+        function lanOriginHint() {
+            const isLocalPage = ['localhost', '127.0.0.1'].includes(location.hostname);
+            return isLocalPage ? '' : '；若从局域网其他电脑访问，请在运行 Ollama 的机器设置环境变量 OLLAMA_ORIGINS=* 并重启 Ollama';
+        }
+
         // 测试 API 连接
         async function testApiConnection() {
-            const apiUrl = document.getElementById('apiUrl').value.trim();
+            const apiUrl = document.getElementById('apiUrl').value.trim().replace(/\/$/, '');
             if (!apiUrl) {
                 showToast('请输入 API 地址');
                 return;
@@ -898,96 +1533,159 @@
             updateStatus('正在测试连接...', true);
 
             try {
-                const response = await fetch(apiUrl + '/api/tags');
-                if (response.ok) {
-                    const data = await response.json();
-                    const modelCount = data.models?.length || 0;
-                    updateStatus('✓ 连接成功！已找到 ' + modelCount + ' 个模型');
-                    showToast('API 连接成功 ✓');
-                    loadModels();
-                } else {
-                    updateStatus('✗ 连接失败：HTTP ' + response.status + '，请检查 API 地址是否正确');
-                    showToast('连接失败，请检查 API 地址');
-                }
-            } catch (error) {
-                updateStatus('✗ 连接失败：' + error.message + '（请检查 Ollama 是否已启动、地址是否正确');
-                showToast('无法连接到 API，请检查 Ollama 是否已启动');
-            }
-        }
-
-        // 加载模型列表
-        async function loadModels() {
-            const apiUrl = document.getElementById('apiUrl').value.trim();
-            if (!apiUrl) return;
-
-            const modelSelect = document.getElementById('modelName');
-            modelSelect.innerHTML = '<option value="">加载中...</option>';
-
-            try {
-                const response = await fetch(apiUrl + '/api/tags');
-                if (response.ok) {
-                    const data = await response.json();
-                    
-                    if (data.models && data.models.length > 0) {
-                        modelSelect.innerHTML = '';
-                        data.models.forEach(model => {
-                            const option = document.createElement('option');
-                            option.value = model.name;
-                            option.textContent = model.name;
-                            modelSelect.appendChild(option);
-                        });
-
-                        // 从 localStorage 恢复上次选中的模型
-                        try {
-                            const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-                            if (saved.modelName && [...modelSelect.options].some(o => o.value === saved.modelName)) {
-                                modelSelect.value = saved.modelName;
-                            }
-                        } catch (e) { /* 忽略 */ }
-
-                        updateStatus('✓ 已加载 ' + data.models.length + ' 个模型');
+                if (isOnline()) {
+                    // 在线模式：用 GET /models 验证地址与 Key
+                    const apiKey = document.getElementById('apiKey').value.trim();
+                    if (!apiKey) {
+                        updateStatus('⚠ 在线模式请先填写 API Key');
+                        showToast('请先填写 API Key');
+                        return;
+                    }
+                    const response = await fetch(apiUrl + '/models', {
+                        headers: { 'Authorization': 'Bearer ' + apiKey }
+                    });
+                    if (response.ok) {
+                        const data = await response.json();
+                        const count = (data.data || []).length;
+                        updateStatus('✓ 在线服务连接成功！可用模型 ' + count + ' 个');
+                        showToast('API 连接成功 ✓');
+                        loadModels();
+                    } else if (response.status === 401) {
+                        updateStatus('✗ 认证失败（HTTP 401）：API Key 无效或已过期');
+                        showToast('API Key 无效，请检查');
                     } else {
-                        modelSelect.innerHTML = '<option value="">未找到模型</option>';
-                        updateStatus('⚠ 未找到已安装的模型');
+                        updateStatus('✗ 连接失败：HTTP ' + response.status + '，请检查 API 地址与服务商状态');
+                        showToast('连接失败，请检查 API 地址');
                     }
                 } else {
-                    modelSelect.innerHTML = '<option value="">加载失败</option>';
-                    updateStatus('✗ 模型列表加载失败');
+                    // 本地 Ollama：GET /api/tags
+                    const response = await fetch(apiUrl + '/api/tags');
+                    if (response.ok) {
+                        const data = await response.json();
+                        const modelCount = data.models?.length || 0;
+                        updateStatus('✓ 连接成功！已找到 ' + modelCount + ' 个模型');
+                        showToast('API 连接成功 ✓');
+                        loadModels();
+                    } else {
+                        updateStatus('✗ 连接失败：HTTP ' + response.status + '，请检查 API 地址是否正确');
+                        showToast('连接失败，请检查 API 地址');
+                    }
                 }
             } catch (error) {
-                console.error('加载模型失败:', error);
-                modelSelect.innerHTML = '<option value="">加载失败</option>';
-                updateStatus('✗ 加载失败：' + error.message);
+                const reason = isOnline()
+                    ? '（请检查网络、API 地址与 Key；国内网络访问 OpenAI 可能需要代理）'
+                    : '（请检查 Ollama 是否已启动、地址是否正确' + lanOriginHint() + '）';
+                updateStatus('✗ 连接失败：' + error.message + reason);
+                showToast('无法连接到 API，请查看状态栏提示');
             }
         }
 
-        // 调用本地模型（真正的流式输出 + 上下文管理 + 系统提示词）
-        async function callLocalModel(prompt, style) {
-            const useOllama = document.getElementById('useOllama').checked;
-            if (!useOllama) {
-                updateStatus('未启用 Ollama，使用本地算法');
+        // 加载模型列表（本地：/api/tags；在线：/models；失败不阻塞手动输入）
+        async function loadModels() {
+            const apiUrl = document.getElementById('apiUrl').value.trim().replace(/\/$/, '');
+            if (!apiUrl) return;
+
+            const datalist = document.getElementById('modelList');
+            datalist.innerHTML = '';
+
+            try {
+                if (isOnline()) {
+                    const apiKey = document.getElementById('apiKey').value.trim();
+                    // 未填 Key 时先给出预设建议，不发起请求
+                    const presetKey = document.getElementById('providerPreset').value || 'deepseek';
+                    const preset = ONLINE_PRESETS[presetKey] || ONLINE_PRESETS.deepseek;
+                    if (!apiKey) {
+                        fillModelSuggestions(preset.models);
+                        updateStatus('⚠ 请填写 API Key 后测试连接（可直接手动输入模型名）');
+                        return;
+                    }
+                    const response = await fetch(apiUrl + '/models', {
+                        headers: { 'Authorization': 'Bearer ' + apiKey }
+                    });
+                    if (!response.ok) throw new Error('HTTP ' + response.status);
+                    const data = await response.json();
+                    const ids = (data.data || []).map(m => m.id).sort();
+                    if (ids.length > 0) {
+                        fillModelSuggestions(ids);
+                        updateStatus('✓ 已加载 ' + ids.length + ' 个在线模型');
+                    } else {
+                        fillModelSuggestions(preset.models);
+                        updateStatus('⚠ 服务未返回模型列表，已载入常用建议，可手动输入');
+                    }
+                } else {
+                    const response = await fetch(apiUrl + '/api/tags');
+                    if (!response.ok) throw new Error('HTTP ' + response.status);
+                    const data = await response.json();
+
+                    if (data.models && data.models.length > 0) {
+                        // 按名称排序，并在建议中附带参数量与体积
+                        data.models.sort((a, b) => a.name.localeCompare(b.name));
+                        datalist.innerHTML = '';
+                        data.models.forEach(model => {
+                            const params = model.details?.parameter_size || '?';
+                            const o = document.createElement('option');
+                            o.value = model.name;
+                            o.textContent = model.name + '（' + params + ' · ' + formatSize(model.size) + '）';
+                            datalist.appendChild(o);
+                        });
+                        updateStatus('✓ 已加载 ' + data.models.length + ' 个模型');
+                    } else {
+                        updateStatus('⚠ 未找到已安装的模型，请先 ollama pull 或直接手动输入模型名');
+                    }
+                }
+
+                // 恢复上次使用的模型名（手输值优先保留）
+                try {
+                    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+                    const inputEl = document.getElementById('modelName');
+                    if (saved.modelName && !inputEl.value) inputEl.value = saved.modelName;
+                } catch (e) { /* 忽略 */ }
+            } catch (error) {
+                console.error('加载模型失败:', error);
+                updateStatus('✗ 模型列表加载失败：' + error.message + '（可直接手动输入模型名）');
+            }
+        }
+
+        // 统一模型调用入口：按服务类型分派到本地 Ollama 或在线 OpenAI 兼容接口
+        // opts.container 自定义渲染目标（对比模式用）；opts.silent 静默模式：不写对话上下文/复制缓存/历史
+        async function callModel(prompt, style, opts) {
+            opts = opts || {};
+            const useRemote = document.getElementById('useOllama').checked;
+            if (!useRemote) {
+                updateStatus('未启用模型，使用本地算法');
                 return null;
             }
+
+            const online = isOnline();
+            const apiKey = document.getElementById('apiKey').value.trim();
 
             const apiUrl = document.getElementById('apiUrl').value.trim();
             if (!apiUrl) {
-                showToast('请先配置 API 地址');
+                showToast(online ? '请先配置在线服务 API 地址' : '请先配置 API 地址');
                 return null;
             }
 
-            const modelName = document.getElementById('modelName').value;
+            if (online && !apiKey) {
+                showToast('在线模式请先填写 API Key');
+                return null;
+            }
+
+            const modelName = document.getElementById('modelName').value.trim();
             if (!modelName) {
-                showToast('请先选择或刷新模型列表');
+                showToast('请先选择、刷新或手动输入模型名');
                 return null;
             }
 
-            const thinkingMode = document.getElementById('thinkingMode').checked;
+            // 思考模式仅对本地 Ollama 生效
+            const thinkingMode = !online && document.getElementById('thinkingMode').checked;
             const baseUrl = apiUrl.replace(/\/$/, '');
+            // 按风格取生成参数（温度/长度上限）
+            const sp = getStyleParams(style);
             
             updateStatus('正在调用模型进行润色...', true);
             setButtonsDisabled(true);
 
-            const polishedDiv = document.getElementById('polishedResult');
+            const polishedDiv = opts.container || document.getElementById('polishedResult');
             
             // 显示思考模式指示器
             if (thinkingMode) {
@@ -1006,8 +1704,8 @@
                 polishedDiv.innerHTML = '<span class="loading-text">正在连接模型...</span><span class="loading-spinner"></span>';
             }
 
-            // 获取对应风格的系统提示词
-            const systemPrompt = systemPrompts[style] || '你是一位专业的文本润色专家，请优化用户提供的文本。';
+            // 获取对应风格的系统提示词（自定义风格优先）
+            const systemPrompt = getSystemPrompt(style);
 
             // 构建消息历史（包含系统提示词和上下文）
             const messages = [
@@ -1023,25 +1721,44 @@
             let fullResponse = '';
 
             try {
-                const response = await fetch(baseUrl + '/api/chat', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
+                // 双协议请求体构造：Ollama NDJSON / OpenAI SSE
+                let requestUrl, requestHeaders, requestBody;
+                if (online) {
+                    requestUrl = baseUrl + '/chat/completions';
+                    requestHeaders = { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + apiKey };
+                    requestBody = {
+                        model: modelName,
+                        messages: messages,
+                        stream: true,
+                        temperature: thinkingMode ? 0.7 : sp.temperature,
+                        max_tokens: sp.maxGen
+                    };
+                } else {
+                    requestUrl = baseUrl + '/api/chat';
+                    requestHeaders = { 'Content-Type': 'application/json' };
+                    requestBody = {
                         model: modelName,
                         messages: messages,
                         stream: true,
                         options: {
-                            temperature: thinkingMode ? 0.7 : 0.3,
-                            // 限制生成长度，避免模型发散输出导致等待过久
-                            // 2048 token 约覆盖 3000 中文字，润色场景通常足够
-                            num_predict: 2048
+                            temperature: thinkingMode ? 0.7 : sp.temperature,
+                            // 限制生成长度，避免模型发散输出导致等待过久（按风格差异化，摘要更短）
+                            num_predict: sp.maxGen,
+                            // 显式上下文窗口，避免默认值过小截断长文本
+                            num_ctx: 4096
                         },
                         // 思考模型(qwen3.5/3.8)默认先长篇思考再输出，极慢
                         // 未开思考模式时显式关闭 think，可提速约 20 倍
-                        think: thinkingMode
-                    }),
+                        think: thinkingMode,
+                        // 模型常驻内存 30 分钟，避免每次请求重复冷加载（10-30 秒）
+                        keep_alive: '30m'
+                    };
+                }
+
+                const response = await fetch(requestUrl, {
+                    method: 'POST',
+                    headers: requestHeaders,
+                    body: JSON.stringify(requestBody),
                     signal: abortSignal
                 });
 
@@ -1070,71 +1787,91 @@
                         </div>
                         <span>AI 正在输出结果...</span>
                     </div>
-                    <div style="margin-top: 12px; color: #667eea; font-weight: 600;">正在接收数据，请稍候...</div>
-                ` : '<div style="margin-top: 12px; color: #667eea; font-weight: 600;">正在接收数据，请稍候...</div>';
+                    <div style="margin-top: 12px; color: var(--accent); font-weight: 600;">正在接收数据，请稍候...</div>
+                ` : '<div style="margin-top: 12px; color: var(--accent); font-weight: 600;">正在接收数据，请稍候...</div>';
+
+                // 跨包缓冲：不完整的行留到下一包拼接，避免长 JSON 被截断丢字
+                let lineBuffer = '';
+
+                // 行解析器：按协议提取增量文本
+                const extractDelta = (rawLine) => {
+                    if (!rawLine.trim()) return '';
+                    try {
+                        if (online) {
+                            // OpenAI SSE：data: {...} / data: [DONE]
+                            const line = rawLine.trim();
+                            if (!line.startsWith('data:')) return '';
+                            const payload = line.slice(5).trim();
+                            if (payload === '[DONE]') return '';
+                            const json = JSON.parse(payload);
+                            return json.choices?.[0]?.delta?.content || '';
+                        }
+                        // Ollama NDJSON
+                        const json = JSON.parse(rawLine);
+                        return (json.message && json.message.content) || '';
+                    } catch (e) {
+                        // 单行解析失败，跳过该行，继续处理
+                        console.warn('行解析跳过:', rawLine.slice(0, 60));
+                        return '';
+                    }
+                };
 
                 while (true) {
                     const { done, value } = await reader.read();
                     if (done) break;
 
-                    try {
-                        const chunk = decoder.decode(value, { stream: true });
+                    lineBuffer += decoder.decode(value, { stream: true });
+                    const lines = lineBuffer.split('\n');
+                    lineBuffer = lines.pop();
 
-                        const lines = chunk.split('\n').filter(line => line.trim());
+                    for (const line of lines) {
+                        const delta = extractDelta(line);
+                        if (!delta) continue;
 
-                        for (const line of lines) {
-                            if (!line.trim()) continue;
+                        fullResponse += delta;
+                        chunkCount++;
 
-                            try {
-                                const data = JSON.parse(line);
-
-                                if (data.message && data.message.content) {
-                                    fullResponse += data.message.content;
-                                    chunkCount++;
-
-                                    // 时间节流：距上次渲染超过阈值才调度一次 raf 渲染
-                                    const now = performance.now();
-                                    if (!renderPending && now - lastRenderTime >= RENDER_INTERVAL) {
-                                        renderPending = true;
-                                        const snapshot = fullResponse; // 闭包快照
-                                        requestAnimationFrame(() => {
-                                            renderPending = false;
-                                            lastRenderTime = performance.now();
-                                            // 仅当还有内容时才渲染
-                                            if (snapshot) {
-                                            // 流式阶段用纯文本实时显示，避免每帧全量 Markdown 解析导致卡顿
-                                            // 完成后再做一次性 Markdown 渲染
-                                            polishedDiv.style.whiteSpace = 'pre-wrap';
-                                            polishedDiv.style.wordBreak = 'break-word';
-                                            polishedDiv.textContent = snapshot;
-                                            polishedDiv.scrollTop = polishedDiv.scrollHeight;
-                                        }
-                                        });
-                                    }
-                                }
-
-                                if (data.done) {
-                                    // 流式输出完成
-                                }
-                            } catch (parseError) {
-                                // 单行解析失败，跳过该行，继续处理
+                        // 时间节流：距上次渲染超过阈值才调度一次 raf 渲染
+                        const now = performance.now();
+                        if (!renderPending && now - lastRenderTime >= RENDER_INTERVAL) {
+                            renderPending = true;
+                            const snapshot = fullResponse; // 闭包快照
+                            requestAnimationFrame(() => {
+                                renderPending = false;
+                                lastRenderTime = performance.now();
+                                // 仅当还有内容时才渲染
+                                if (snapshot) {
+                                // 流式阶段用纯文本实时显示，避免每帧全量 Markdown 解析导致卡顿
+                                // 完成后再做一次性 Markdown 渲染
+                                polishedDiv.style.whiteSpace = 'pre-wrap';
+                                polishedDiv.style.wordBreak = 'break-word';
+                                polishedDiv.textContent = snapshot;
+                                polishedDiv.scrollTop = polishedDiv.scrollHeight;
                             }
+                            });
                         }
-                    } catch (chunkError) {
-                        // 数据块处理失败，继续处理下一个数据块
                     }
                 }
 
-                // 最后一次完整渲染，确保所有内容都正确显示（等待可能挂起的 raf 完成后再做最终渲染）
-                await new Promise(resolve => requestAnimationFrame(resolve));
+                // 处理缓冲区中残留的最后一行
+                if (lineBuffer.trim()) {
+                    const tailDelta = extractDelta(lineBuffer);
+                    if (tailDelta) {
+                        fullResponse += tailDelta;
+                        chunkCount++;
+                    }
+                }
+
+                // 最后一次完整渲染，确保所有内容都正确显示
+                // 竞速兜底：窗口最小化/遮挡时 rAF 可能停摆，用 200ms 超时防止完成流程被挂起
+                await Promise.race([
+                    new Promise(resolve => requestAnimationFrame(resolve)),
+                    new Promise(resolve => setTimeout(resolve, 200))
+                ]);
 
                 if (fullResponse.trim()) {
-                    // 完成后一次性 Markdown 渲染，并清除流式阶段的纯文本样式
-                    polishedDiv.style.whiteSpace = '';
-                    polishedDiv.style.wordBreak = '';
-                    const renderedContent = DOMPurify.sanitize(marked.parse(fullResponse));
-                    polishedDiv.innerHTML = renderedContent;
-                    polishedDiv.scrollTop = polishedDiv.scrollHeight;
+                    // 完成后一次性 Markdown 渲染（对照视图开启时左右分栏）
+                    renderPolishOutput(polishedDiv, fullResponse);
                 }
 
                 if (chunkCount === 0 || fullResponse.trim() === '') {
@@ -1152,16 +1889,18 @@
                 } else {
                     updateStatus('✓ 模型调用成功，已接收 ' + chunkCount + ' 个数据块，共 ' + fullResponse.length + ' 字符');
 
-                    // 保存当前润色的原始文本，供复制使用
-                    currentPolishedText = fullResponse;
+                    if (!opts.silent) {
+                        // 保存当前润色的原始文本，供复制使用
+                        currentPolishedText = fullResponse;
 
-                    // 将本次对话添加到历史记录
-                    chatHistory.push({ role: 'user', content: prompt });
-                    chatHistory.push({ role: 'assistant', content: fullResponse });
+                        // 将本次对话添加到历史记录
+                        chatHistory.push({ role: 'user', content: prompt });
+                        chatHistory.push({ role: 'assistant', content: fullResponse });
 
-                    // 限制历史记录长度（最多保留 10 条消息，即 5 轮对话，避免 token 超限）
-                    if (chatHistory.length > 10) {
-                        chatHistory = chatHistory.slice(-10);
+                        // 限制历史记录长度（最多保留 10 条消息，即 5 轮对话，避免 token 超限）
+                        if (chatHistory.length > 10) {
+                            chatHistory = chatHistory.slice(-10);
+                        }
                     }
                 }
 
@@ -1171,10 +1910,8 @@
                 // 用户主动中断：保存已接收的部分结果，不显示错误
                 if (error.name === 'AbortError') {
                     if (fullResponse.trim()) {
-                        currentPolishedText = fullResponse;
-                        polishedDiv.style.whiteSpace = '';
-                        polishedDiv.style.wordBreak = '';
-                        polishedDiv.innerHTML = DOMPurify.sanitize(marked.parse(fullResponse));
+                        if (!opts.silent) { currentPolishedText = fullResponse; }
+                        renderPolishOutput(polishedDiv, fullResponse);
                         updateStatus('⏹️ 已停止生成，保存了 ' + fullResponse.length + ' 字符的部分结果');
                     } else {
                         updateStatus('⏹️ 已停止生成');
@@ -1198,17 +1935,24 @@
                     }
                 }
 
+                const checklist = online
+                    ? `1. API 地址与 Key 是否正确<br>
+                        2. 模型名是否有效（如 deepseek-chat）<br>
+                        3. 账户额度是否充足<br>
+                        4. 网络是否可达（访问 OpenAI 可能需要代理）<br>
+                        5. 查看浏览器控制台（F12）获取详细错误信息`
+                    : `1. Ollama 服务是否已启动（访问 http://localhost:11434）<br>
+                        2. 模型是否正确安装并加载<br>
+                        3. API 地址配置是否正确${lanOriginHint() ? '<br>4. 局域网访问：在 Ollama 所在机器设置环境变量 OLLAMA_ORIGINS=* 并重启' : ''}<br>
+                        5. 查看浏览器控制台（F12）获取详细错误信息`;
+
                 polishedDiv.innerHTML = `
                     <div style="color: #e53e3e; padding: 16px; background: #fff5f5; border-radius: 8px; border-left: 4px solid #e53e3e;">
                         <strong>✗ 调用失败</strong><br>
                         ${errorStatus ? '状态码：' + escapeHtml(errorStatus) + '<br>' : ''}
                         错误信息：${escapeHtml(errorMessage)}<br><br>
                         <strong>请检查：</strong><br>
-                        1. Ollama 服务是否已启动（访问 http://localhost:11434）<br>
-                        2. 模型是否正确安装并加载<br>
-                        3. 网络连接是否正常<br>
-                        4. API 地址配置是否正确<br>
-                        5. 查看浏览器控制台（F12）获取详细错误信息
+                        ${checklist}
                     </div>
                 `;
                 updateStatus('✗ 模型调用失败：' + errorMessage);
@@ -1226,13 +1970,35 @@
             return div.innerHTML;
         }
 
-        // 清洗文本
-        function cleanText(text) {
+        // 填充词移除：语气词全局删，口语词仅独立出现时删
+        function removeFillers(text) {
             let cleaned = text;
 
-            fillerWords.forEach(word => {
+            interjectionWords.forEach(word => {
                 cleaned = cleaned.replaceAll(word, '');
             });
+
+            // 边界匹配：词前须为文本开头/标点/空白（词后不限，兼容无标点连排的口语文本）
+            const escapeRe = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const boundary = '[。，！？；：、\\n\\s]';
+            phraseFillers.forEach(word => {
+                const re = new RegExp('(^|' + boundary + ')' + escapeRe(word), 'g');
+                cleaned = cleaned.replace(re, '$1');
+            });
+
+            // 清理删除后残留的行首标点；连续标点合并（保留句末强标点）
+            cleaned = cleaned.replace(/^[，、；：,;\s]+/gm, '');
+            cleaned = cleaned.replace(/[，、；：。！？]+/g, m => {
+                const strong = m.match(/[。！？]/);
+                return strong ? strong[strong.length - 1] : m[0];
+            });
+
+            return cleaned;
+        }
+
+        // 清洗文本
+        function cleanText(text) {
+            let cleaned = removeFillers(text);
 
             cleaned = cleaned.replace(/\s+/g, ' ');
             cleaned = cleaned.replace(/([。！？])/g, '$1\n');
@@ -1275,9 +2041,7 @@
                     break;
 
                 case 'spoken-to-written':
-                    fillerWords.forEach(word => {
-                        polished = polished.replaceAll(word, '');
-                    });
+                    polished = removeFillers(polished);
                     break;
 
                 case 'persuasive':
@@ -1315,49 +2079,170 @@
             document.getElementById('originalResult').textContent = text;
             document.getElementById('cleanedResult').textContent = cleanedText;
 
-            // 准备用户输入（简洁指令 + 待处理文本）
-            const prompt = `请按照系统提示词的要求，对以下文本进行${getStyleName(style)}处理：\n\n${cleanedText}`;
+            // 准备用户输入（简洁指令 + 待处理文本 + 按原文特征追加的量化指令）
+            const prompt = `请按照系统提示词的要求，对以下文本进行${getStyleName(style)}处理：\n\n${cleanedText}` + buildPromptSuffix(style, cleanedText);
+            lastCleanedText = cleanedText;
 
-            // 调用本地模型
+            // 调用模型（本地 Ollama 或在线 API）
             const apiUrl = document.getElementById('apiUrl').value.trim();
+            const styleName = getStyleName(style);
             if (apiUrl) {
-                const polishedText = await callLocalModel(prompt, style);
+                const polishedText = await callModel(prompt, style);
                 if (polishedText) {
-                    updateStatus('✓ 已完成 ' + style + ' 风格润色（使用本地模型）');
+                    recordPolishHistory(styleName + '（模型）', polishedText);
+                    updateStatus('✓ 已完成 ' + styleName + ' 风格润色（使用' + (isOnline() ? '在线模型' : '本地模型') + '）');
                     return;
                 }
             }
 
-            // 备用方案：本地算法
+            // 备用方案：本地算法（基础规则处理，非 AI）
+            showToast('ℹ 当前为本地基础算法（非 AI），开启「调用模型」获得 AI 润色', 3500);
             const polishedText = polishText(cleanedText, style);
             document.getElementById('polishedResult').textContent = polishedText;
             currentPolishedText = polishedText; // 保存供复制使用
-            updateStatus('✓ 已完成 ' + style + ' 风格润色（使用本地算法）');
+            recordPolishHistory(styleName + '（算法）', polishedText);
+            updateStatus('✓ 已完成 ' + styleName + ' 风格润色（使用本地算法）');
         }
 
-        // 复制结果（使用保存的原始文本，保留 Markdown 格式）
+        // 复制结果（优先 Clipboard API，非 HTTPS/局域网环境降级 execCommand）
         function copyResult() {
             if (!currentPolishedText || !currentPolishedText.trim()) {
                 showToast('没有可复制的内容');
                 return;
             }
 
-            navigator.clipboard.writeText(currentPolishedText)
+            copyTextToClipboard(currentPolishedText)
                 .then(() => showToast('✓ 已复制到剪贴板'))
                 .catch(err => showToast('复制失败：' + err));
         }
 
+        // 剪贴板写入：Clipboard API 不可用时降级为 execCommand
+        function copyTextToClipboard(text) {
+            if (navigator.clipboard && window.isSecureContext) {
+                return navigator.clipboard.writeText(text);
+            }
+            return new Promise((resolve, reject) => {
+                const ta = document.createElement('textarea');
+                ta.value = text;
+                ta.style.position = 'fixed';
+                ta.style.opacity = '0';
+                document.body.appendChild(ta);
+                ta.select();
+                try {
+                    const ok = document.execCommand('copy');
+                    document.body.removeChild(ta);
+                    ok ? resolve() : reject(new Error('execCommand 复制失败'));
+                } catch (e) {
+                    document.body.removeChild(ta);
+                    reject(e);
+                }
+            });
+        }
+
+        // 导出润色结果为 .md 文件
+        function exportMarkdown() {
+            if (!currentPolishedText || !currentPolishedText.trim()) {
+                showToast('没有可导出的内容');
+                return;
+            }
+
+            const blob = new Blob([currentPolishedText], { type: 'text/markdown;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            const ts = new Date().toISOString().slice(0, 19).replace(/[T:]/g, '-');
+            a.href = url;
+            a.download = '润色结果_' + ts + '.md';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showToast('✓ 已导出 .md 文件');
+        }
+
+        // ===== 润色历史 =====
+        let polishHistory = [];
+
+        function recordPolishHistory(styleName, text) {
+            try {
+                polishHistory.unshift({ time: Date.now(), style: styleName, text: text });
+                if (polishHistory.length > 10) polishHistory = polishHistory.slice(0, 10);
+                localStorage.setItem(HISTORY_KEY, JSON.stringify(polishHistory));
+                renderHistory();
+            } catch (e) {
+                console.warn('保存历史失败:', e);
+            }
+        }
+
+        function loadPolishHistory() {
+            try {
+                polishHistory = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+            } catch (e) {
+                polishHistory = [];
+            }
+            renderHistory();
+        }
+
+        function renderHistory() {
+            const list = document.getElementById('historyList');
+            list.innerHTML = '';
+            polishHistory.forEach((item, idx) => {
+                const div = document.createElement('div');
+                div.className = 'history-item';
+                const t = new Date(item.time).toLocaleString('zh-CN', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+                div.innerHTML = '<span class="h-style"></span><span class="h-time"></span>';
+                div.querySelector('.h-style').textContent = item.style + ' · ' + item.text.slice(0, 20) + '...';
+                div.querySelector('.h-time').textContent = t;
+                div.addEventListener('click', () => {
+                    currentPolishedText = item.text;
+                    const polishedDiv = document.getElementById('polishedResult');
+                    polishedDiv.style.whiteSpace = '';
+                    polishedDiv.style.wordBreak = '';
+                    polishedDiv.innerHTML = DOMPurify.sanitize(marked.parse(item.text));
+                    updateStatus('已回看历史记录 #' + (idx + 1) + '（' + item.style + '）');
+                });
+                list.appendChild(div);
+            });
+        }
+
+        // 模型预热：页面加载后把模型提前载入显存/内存，首次点击即秒出首字
+        function warmupModel() {
+            if (!document.getElementById('useOllama').checked || isOnline()) return;
+            const apiUrl = document.getElementById('apiUrl').value.trim().replace(/\/$/, '');
+            const modelName = document.getElementById('modelName').value.trim();
+            if (!apiUrl || !modelName) return;
+
+            fetch(apiUrl + '/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    model: modelName,
+                    messages: [{ role: 'user', content: 'hi' }],
+                    stream: false,
+                    think: false,
+                    keep_alive: '30m',
+                    options: { num_predict: 1 }
+                })
+            }).then(r => r.text()).then(() => {
+                console.info('[warmup] 模型预热完成：' + modelName);
+            }).catch(() => { /* 预热失败静默忽略 */ });
+        }
+
         // 清空全部
         function clearAll() {
+            const polishedDiv = document.getElementById('polishedResult');
             document.getElementById('inputText').value = '';
+            document.getElementById('charCount').textContent = '0 字';
             document.getElementById('originalResult').textContent = '等待输入...';
             document.getElementById('cleanedResult').textContent = '等待处理...';
-            document.getElementById('polishedResult').innerHTML = '等待润色...';
+            polishedDiv.style.whiteSpace = '';
+            polishedDiv.style.wordBreak = '';
+            polishedDiv.innerHTML = '等待润色...';
             document.getElementById('statusBar').style.display = 'none';
             textarea.style.height = 'auto';
             chatHistory = [];
             currentPolishedText = ''; // 重置，避免复制到旧内容
-            document.querySelectorAll('.style-btn').forEach(b => b.classList.remove('active')); // 清除风格选中状态
+            document.querySelectorAll('.style-btn').forEach(b => b.classList.remove('active', 'pick')); // 清除风格选中/多选状态
+            updateCompareBar();
             updateStatus('已清空所有内容');
         }
 
@@ -1365,9 +2250,33 @@
         document.getElementById('testApiBtn').addEventListener('click', testApiConnection);
         document.getElementById('refreshModelsBtn').addEventListener('click', loadModels);
         document.getElementById('stopBtn').addEventListener('click', stopGeneration);
+        document.getElementById('exportBtn').addEventListener('click', exportMarkdown);
+
+        // 服务类型切换：显隐在线配置区并保存
+        document.getElementById('serviceType').addEventListener('change', () => {
+            applyServiceTypeUI(true);
+            loadModels();
+        });
+
+        // 在线服务商预设：填入地址与模型建议
+        document.getElementById('providerPreset').addEventListener('change', (e) => {
+            const preset = ONLINE_PRESETS[e.target.value];
+            if (preset) {
+                document.getElementById('apiUrl').value = preset.url;
+                fillModelSuggestions(preset.models);
+                const modelInput = document.getElementById('modelName');
+                if (!modelInput.value || !preset.models.includes(modelInput.value)) {
+                    modelInput.value = preset.models[0];
+                }
+                document.getElementById('apiKey').focus();
+            }
+            saveConfig();
+            loadModels();
+        });
 
         // 配置变更自动保存：apiUrl 变更时同时重新加载模型列表
         document.getElementById('apiUrl').addEventListener('change', () => { saveConfig(); loadModels(); });
+        document.getElementById('apiKey').addEventListener('change', () => { saveConfig(); loadModels(); });
         document.getElementById('modelName').addEventListener('change', saveConfig);
         document.getElementById('useOllama').addEventListener('change', saveConfig);
         document.getElementById('thinkingMode').addEventListener('change', saveConfig);
@@ -1392,28 +2301,212 @@
             showToast('✓ 文本提交成功');
         });
 
-        // 润色按钮（点击后高亮选中状态）
-        document.querySelectorAll('.style-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const style = btn.dataset.style;
-                // 移除所有按钮的 active 状态
-                document.querySelectorAll('.style-btn').forEach(b => b.classList.remove('active'));
-                // 为当前按钮添加 active 状态
-                btn.classList.add('active');
-                handlePolish(style);
-            });
+        // 风格点击：事件委托（兼容动态添加的自定义风格卡片）
+        document.querySelector('.style-grid').addEventListener('click', (e) => {
+            const btn = e.target.closest('.style-btn');
+            if (!btn) { return; }
+            if (btn.id === 'addStyleBtn') { openStyleModal(); return; }
+            const style = btn.dataset.style;
+            if (!style) { return; }
+            // 对比模式：点选多个风格，不立即触发润色
+            if (document.getElementById('multiMode').checked) {
+                btn.classList.toggle('pick');
+                updateCompareBar();
+                return;
+            }
+            // 单选：清除多选残留，切换风格时清空上下文避免污染
+            document.querySelectorAll('.style-btn').forEach(b => b.classList.remove('active', 'pick'));
+            btn.classList.add('active');
+            if (currentStyleId && currentStyleId !== style && chatHistory.length > 0) {
+                chatHistory = [];
+                showToast('↻ 已切换风格，忽略此前对话上下文', 2500);
+            }
+            currentStyleId = style;
+            handlePolish(style);
         });
+
+        // 对比模式开关：关闭时清空多选并隐藏操作条
+        document.getElementById('multiMode').addEventListener('change', () => {
+            document.querySelectorAll('.style-btn').forEach(b => b.classList.remove('pick'));
+            updateCompareBar();
+        });
+
+        // 对比操作条状态
+        function getPickedStyles() {
+            return Array.from(document.querySelectorAll('.style-btn.pick'))
+                .map(b => b.dataset.style).filter(Boolean);
+        }
+
+        function updateCompareBar() {
+            document.getElementById('compareBar').classList.toggle('hidden', !document.getElementById('multiMode').checked);
+            const n = getPickedStyles().length;
+            document.getElementById('compareHint').textContent = '已选 ' + n + ' 个风格';
+            document.getElementById('runCompareBtn').disabled = n < 2;
+        }
+
+        // 多风格横向对比：串行调用所选风格，分块展示（不写入对话历史）
+        async function runCompare() {
+            const styles = getPickedStyles();
+            if (styles.length < 2) { showToast('请至少选择 2 个风格', 2500); return; }
+            const raw = document.getElementById('inputText').value.trim();
+            if (!raw) { showToast('请先输入需要润色的文本', 2500); return; }
+            const cleanedText = cleanText(raw);
+            lastCleanedText = cleanedText;
+
+            const polishedDiv = document.getElementById('polishedResult');
+            polishedDiv.innerHTML = '';
+            setButtonsDisabled(true);
+
+            let aborted = false;
+            const stopBtnEl = document.getElementById('stopBtn');
+            const onStop = () => { aborted = true; };
+            stopBtnEl.addEventListener('click', onStop);
+
+            for (const st of styles) {
+                if (aborted) { break; }
+                const prompt = `请按照系统提示词的要求，对以下文本进行${getStyleName(st)}处理：
+
+${cleanedText}` + buildPromptSuffix(st, cleanedText);
+                const block = document.createElement('div');
+                block.className = 'result-box';
+                block.style.marginBottom = '10px';
+                const body = document.createElement('div');
+                body.className = 'markdown-content';
+                block.innerHTML = '<h5 style="margin:0 0 6px;">🏷️ ' + escapeHtml(getStyleName(st)) + '</h5>';
+                block.appendChild(body);
+                polishedDiv.appendChild(block);
+                try {
+                    const res = await callModel(prompt, st, { container: body, silent: true });
+                    if (!res) {
+                        body.innerHTML = '<em>该风格生成失败或已中断</em>';
+                    } else if (!aborted) {
+                        const cbtn = document.createElement('button');
+                        cbtn.className = 'btn btn-secondary';
+                        cbtn.style.cssText = 'font-size:0.72em;padding:2px 8px;margin-left:8px;';
+                        cbtn.textContent = '📋 复制';
+                        cbtn.addEventListener('click', () => {
+                            navigator.clipboard.writeText(res).then(() => showToast('✓ 已复制「' + getStyleName(st) + '」结果', 2000));
+                        });
+                        block.querySelector('h5').appendChild(cbtn);
+                    }
+                } catch (err) {
+                    body.textContent = polishText(cleanedText);
+                }
+                if (!aborted) { setButtonsDisabled(true); } // 各块间保持停止按钮可用
+            }
+
+            stopBtnEl.removeEventListener('click', onStop);
+            setButtonsDisabled(false);
+            updateStatus(aborted ? '⏹️ 对比已中断' : '✓ 已完成 ' + styles.length + ' 个风格对比');
+        }
+        document.getElementById('runCompareBtn').addEventListener('click', runCompare);
+
+        // 原文对照开关：切换后重渲染当前结果
+        document.getElementById('compareViewBtn').addEventListener('click', () => {
+            compareView = !compareView;
+            const btn = document.getElementById('compareViewBtn');
+            btn.style.borderColor = compareView ? 'var(--accent)' : '';
+            btn.style.color = compareView ? 'var(--accent)' : '';
+            btn.textContent = compareView ? '🔀 对照中' : '🔀 原文对照';
+            const polishedDiv = document.getElementById('polishedResult');
+            if (currentPolishedText && !polishedDiv.querySelector('.cmp-block')) {
+                renderPolishOutput(polishedDiv, currentPolishedText);
+            }
+        });
+
+        // 渲染自定义风格卡片（插在「➕ 自定义」之前）
+        function renderCustomStyles() {
+            document.querySelectorAll('.style-btn[data-style^="cs_"]').forEach(el => el.remove());
+            const addBtn = document.getElementById('addStyleBtn');
+            customStyles.forEach(cs => {
+                const el = document.createElement('div');
+                el.className = 'style-btn';
+                el.dataset.style = cs.id;
+                el.innerHTML = '<div class="title">' + escapeHtml((cs.icon || '✨') + ' ' + cs.name) + '</div><div class="desc">自定义风格</div>';
+                addBtn.parentNode.insertBefore(el, addBtn);
+            });
+        }
+
+        // 自定义风格管理弹窗
+        function openStyleModal() {
+            document.getElementById('csName').value = '';
+            document.getElementById('csIcon').value = '';
+            document.getElementById('csPrompt').value = '';
+            renderCsList();
+            document.getElementById('modalOverlay').classList.remove('hidden');
+        }
+
+        function closeStyleModal() {
+            document.getElementById('modalOverlay').classList.add('hidden');
+        }
+
+        function renderCsList() {
+            const list = document.getElementById('csList');
+            if (!customStyles.length) {
+                list.innerHTML = '<div style="font-size:0.78em;color:var(--ink-3);">暂无自定义风格</div>';
+                return;
+            }
+            list.innerHTML = '';
+            customStyles.forEach(cs => {
+                const item = document.createElement('div');
+                item.className = 'cs-item';
+                item.innerHTML = '<span>' + escapeHtml(cs.icon || '✨') + '</span>' +
+                    '<span class="cs-name">' + escapeHtml(cs.name) + '</span>' +
+                    '<span class="cs-del" data-del="' + cs.id + '">🗑 删除</span>';
+                list.appendChild(item);
+            });
+        }
+
+        document.getElementById('csSaveBtn').addEventListener('click', () => {
+            const name = document.getElementById('csName').value.trim();
+            const icon = document.getElementById('csIcon').value.trim() || '✨';
+            const prompt = document.getElementById('csPrompt').value.trim();
+            if (!name || !prompt) { showToast('⚠ 风格名称与系统提示词为必填项', 2500); return; }
+            if (customStyles.length >= 6) { showToast('⚠ 最多保留 6 个自定义风格', 2500); return; }
+            customStyles.push({ id: 'cs_' + Date.now(), name: name, icon: icon, prompt: prompt });
+            saveCustomStyles();
+            renderCustomStyles();
+            renderCsList();
+            document.getElementById('csName').value = '';
+            document.getElementById('csIcon').value = '';
+            document.getElementById('csPrompt').value = '';
+            showToast('✓ 自定义风格「' + name + '」已保存', 2500);
+        });
+
+        // 列表内删除（委托）
+        document.getElementById('csList').addEventListener('click', (e) => {
+            const del = e.target.closest('.cs-del');
+            if (!del) { return; }
+            const id = del.dataset.del;
+            const cs = getCustomStyle(id);
+            customStyles = customStyles.filter(c => c.id !== id);
+            saveCustomStyles();
+            renderCustomStyles();
+            renderCsList();
+            showToast('🗑 已删除「' + (cs ? cs.name : '风格') + '」', 2000);
+        });
+
+        document.getElementById('csCloseBtn').addEventListener('click', closeStyleModal);
+        document.getElementById('modalOverlay').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) { closeStyleModal(); }
+        });
+
+        // 初始化已保存的自定义风格
+        renderCustomStyles();
 
         document.getElementById('copyBtn').addEventListener('click', copyResult);
         document.getElementById('clearBtn').addEventListener('click', clearAll);
 
-        // 页面加载后恢复配置并加载模型
+        // 页面加载后恢复配置、加载模型并预热
         window.addEventListener('load', () => {
             loadConfig();
+            loadPolishHistory();
             const apiUrl = document.getElementById('apiUrl').value.trim();
             if (apiUrl) {
                 loadModels();
             }
+            // 延迟预热，避免与模型列表请求争抢资源
+            setTimeout(warmupModel, 800);
         });
     </script>
 </body>
